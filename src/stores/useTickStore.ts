@@ -27,6 +27,7 @@ import {
   loadCalibrationStateFromDb,
   saveCalibrationState,
 } from '@/lib/signal-persistence';
+import { useDemoAccountStore } from '@/stores/useDemoAccountStore';
 
 const MAX_CANDLES = 600;
 const COMPUTE_THROTTLE_MS = 800;
@@ -528,6 +529,7 @@ function maybeEvaluateSignal(
   analytics.setCurrentSignal(finalSignal);
   analytics.addSignal(finalSignal);
   ensureScheduler().schedule(finalSignal);
+  useDemoAccountStore.getState().openTrade(finalSignal);
   void saveSignal(finalSignal);
 
   const prob = finalSignal.calibratedProbability ?? finalSignal.score / 10;
@@ -598,6 +600,7 @@ function maybeResolveOutcomes(
 
   sched.onCandleClosed(state.candles, (resolved, signal) => {
     analytics.updateSignalOutcome(resolved.signalId, resolved.outcome);
+    useDemoAccountStore.getState().settleTrade(resolved.signalId, resolved.outcome === 'pending' ? 'timeout' : resolved.outcome);
     void updateSignalOutcome(resolved.signalId, resolved.outcome);
     const outcomeRecord = eng.recordOutcome(signal, resolved.outcome);
     if (outcomeRecord && calibrationModel) {

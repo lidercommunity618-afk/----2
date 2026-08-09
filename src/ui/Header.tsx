@@ -13,6 +13,7 @@ import { Boxes } from 'lucide-react';
 import { useState } from 'react';
 import { StrategiesModal } from '@/ui/StrategiesModal';
 import { AiAnalysisButton } from '@/ui/AiAnalysisOverlay';
+import { DemoAccountBadge } from '@/ui/DemoAccountBadge';
 
 interface HeaderProps {
   onAiAnalyze: () => void;
@@ -96,6 +97,7 @@ export function Header({ onAiAnalyze, aiLoading }: HeaderProps) {
             </span>
           )}
           <PredictionAccuracyBadge />
+          <DemoAccountBadge />
           <ConnectionStatusBadge status={status} />
           <AiAnalysisButton onClick={onAiAnalyze} loading={aiLoading} />
           <button

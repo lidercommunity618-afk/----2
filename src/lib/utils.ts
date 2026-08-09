@@ -41,6 +41,16 @@ export function clsx(...parts: Array<string | false | null | undefined>): string
   return parts.filter(Boolean).join(' ');
 }
 
+export function formatCurrency(value: number): string {
+  const sign = value < 0 ? '-' : '';
+  const abs = Math.abs(value);
+  const formatted = abs.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return `${sign}${formatted.replace(/,/g, ' ')}`;
+}
+
 export function genId(prefix: string): string {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }

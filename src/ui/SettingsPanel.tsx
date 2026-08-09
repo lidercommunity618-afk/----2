@@ -1,8 +1,9 @@
 import { useState, lazy, Suspense } from 'react';
-import { Settings as SettingsIcon, X, Volume2, VolumeX, Key, Layers, Box, BarChart3, RotateCcw, LineChart, AlertTriangle, GraduationCap } from 'lucide-react';
+import { Settings as SettingsIcon, X, Volume2, VolumeX, Key, Layers, Box, BarChart3, RotateCcw, LineChart, AlertTriangle, GraduationCap, Wallet } from 'lucide-react';
 import { useSettingsStore, ALL_PATTERNS, ALL_INDICATOR_FEATURES } from '@/stores/settingsStore';
 import { useApiKeysStore } from '@/stores/useApiKeysStore';
 import { useTickStore } from '@/stores/useTickStore';
+import { useDemoAccountStore } from '@/stores/useDemoAccountStore';
 import { DERIV_DEFAULT_APP_ID } from '@/data/providers.config';
 import { TIMEFRAMES } from '@/data/symbols';
 import { clsx } from '@/lib/utils';
@@ -106,6 +107,21 @@ export function SettingsPanel({ onClose }: { onClose: () => void }) {
   const priorityThreshold = useSettingsStore((s) => s.priorityThreshold);
   const setPriorityThreshold = useSettingsStore((s) => s.setPriorityThreshold);
   const setOnboardingCompleted = useSettingsStore((s) => s.setOnboardingCompleted);
+
+  const demoBalance = useDemoAccountStore((s) => s.balance);
+  const setDemoBalanceAction = useDemoAccountStore((s) => s.setBalance);
+  const demoBaseStake = useDemoAccountStore((s) => s.baseStake);
+  const setDemoBaseStakeAction = useDemoAccountStore((s) => s.setBaseStake);
+  const demoProfitPercent = useDemoAccountStore((s) => s.profitPercent);
+  const setDemoProfitPercentAction = useDemoAccountStore((s) => s.setProfitPercent);
+  const demoAutoTrade = useDemoAccountStore((s) => s.autoTradeEnabled);
+  const setDemoAutoTradeAction = useDemoAccountStore((s) => s.setAutoTradeEnabled);
+  const resetAccount = useDemoAccountStore((s) => s.resetAccount);
+
+  const setDemoBalance = (v: number) => setDemoBalanceAction(v);
+  const setDemoBaseStake = (v: number) => setDemoBaseStakeAction(v);
+  const setDemoProfitPercent = (v: number) => setDemoProfitPercentAction(v);
+  const setDemoAutoTrade = (v: boolean) => setDemoAutoTradeAction(v);
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
@@ -366,6 +382,54 @@ export function SettingsPanel({ onClose }: { onClose: () => void }) {
                   {tf}
                 </button>
               ))}
+            </div>
+          </Section>
+
+          <Section title="Демо-счёт">
+            <div className="flex flex-col gap-3 rounded-lg border border-base-800 bg-base-900 p-3">
+              <div className="flex items-center gap-2">
+                <Wallet size={14} className="text-secondary-400" />
+                <span className="text-2xs font-bold uppercase tracking-wider text-base-400">Виртуальный счёт для оценки сигналов</span>
+              </div>
+              <NumberInput
+                label="Баланс ($)"
+                value={demoBalance}
+                min={0}
+                max={100000}
+                step={10}
+                onChange={(v) => setDemoBalance(v)}
+              />
+              <NumberInput
+                label="Стартовая ставка ($)"
+                value={demoBaseStake}
+                min={1}
+                max={1000}
+                step={1}
+                onChange={(v) => setDemoBaseStake(v)}
+              />
+              <NumberInput
+                label="Процент прибыли (%)"
+                value={demoProfitPercent}
+                min={1}
+                max={100}
+                step={1}
+                onChange={(v) => setDemoProfitPercent(v)}
+              />
+              <div className="flex items-center justify-between">
+                <span className="text-2xs text-base-400">Автооткрытие сделок</span>
+                <Toggle on={demoAutoTrade} onToggle={() => setDemoAutoTrade(!demoAutoTrade)} />
+              </div>
+              <button
+                onClick={() => {
+                  if (window.confirm('Сбросить демо-счёт? Баланс вернётся к $1000, история будет очищена.')) {
+                    resetAccount();
+                  }
+                }}
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-error-700/50 bg-error-700/15 px-3 py-2 text-xs font-semibold text-error-400 transition hover:bg-error-700/25"
+              >
+                <RotateCcw size={14} />
+                Сбросить демо-счёт
+              </button>
             </div>
           </Section>
 
