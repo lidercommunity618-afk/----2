@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Wallet, X, TrendingUp, TrendingDown, Clock } from 'lucide-react';
+import { Wallet, X, TrendingUp, TrendingDown } from 'lucide-react';
 import { useDemoAccountStore } from '@/stores/useDemoAccountStore';
 import { formatCurrency, clsx } from '@/lib/utils';
 
@@ -81,13 +81,11 @@ export function DemoAccountBadge() {
                         <div className="flex items-center gap-2">
                           {entry.outcome === 'win' ? (
                             <TrendingUp size={14} className="text-success-400" />
-                          ) : entry.outcome === 'loss' ? (
-                            <TrendingDown size={14} className="text-error-400" />
                           ) : (
-                            <Clock size={14} className="text-base-500" />
+                            <TrendingDown size={14} className="text-error-400" />
                           )}
                           <span className="text-2xs font-medium text-base-300">
-                            {entry.outcome === 'win' ? 'Выигрыш' : entry.outcome === 'loss' ? 'Проигрыш' : 'Таймаут'}
+                            {entry.outcome === 'win' ? 'Выигрыш' : 'Проигрыш'}
                           </span>
                         </div>
                         <span className={clsx('font-mono text-xs font-bold tabular-nums', entry.pnl >= 0 ? 'text-success-400' : 'text-error-400')}>

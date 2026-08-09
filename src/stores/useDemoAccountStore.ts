@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { Signal, SignalDirection, SignalOutcome } from '@/types/domain';
+import type { Signal, SignalDirection } from '@/types/domain';
+import { TIMEFRAME_SECONDS } from '@/data/symbols';
 
 export interface DemoTrade {
   signalId: string;
@@ -8,11 +9,13 @@ export interface DemoTrade {
   profitPercent: number;
   direction: SignalDirection;
   openedAt: number;
+  entryPrice: number;
+  expiryAt: number;
 }
 
 export interface DemoTradeHistoryEntry {
   signalId: string;
-  outcome: 'win' | 'loss' | 'timeout';
+  outcome: 'win' | 'loss';
   pnl: number;
   balanceAfter: number;
   closedAt: number;
@@ -28,7 +31,7 @@ interface DemoAccountState {
   openTrades: Record<string, DemoTrade>;
   history: DemoTradeHistoryEntry[];
   openTrade: (signal: Signal) => void;
-  settleTrade: (signalId: string, outcome: 'win' | 'loss' | 'timeout') => void;
+  checkExpiries: (currentPrice: number, nowMs: number) => void;
   setBaseStake: (v: number) => void;
   setProfitPercent: (v: number) => void;
   setAutoTradeEnabled: (v: boolean) => void;
@@ -63,64 +66,69 @@ export const useDemoAccountStore = create<DemoAccountState>()(
           profitPercent: state.profitPercent,
           direction: signal.direction,
           openedAt: Date.now(),
+          entryPrice: signal.entryPrice,
+          expiryAt: (signal.time + TIMEFRAME_SECONDS[signal.timeframe]) * 1000,
         };
         set({
+          balance: state.balance - state.currentStake,
           openTrades: { ...state.openTrades, [signal.id]: trade },
         });
       },
 
-      settleTrade: (signalId, outcome) => {
-        const state = get();
-        const trade = state.openTrades[signalId];
-        if (!trade) return;
+      checkExpiries: (currentPrice, nowMs) => {
+        let state = get();
+        const expired = Object.values(state.openTrades)
+          .filter((t) => nowMs >= t.expiryAt)
+          .sort((a, b) => a.expiryAt - b.expiryAt);
 
-        if (outcome === 'timeout') {
-          const remaining = { ...state.openTrades };
-          delete remaining[signalId];
-          set({ openTrades: remaining });
-          return;
-        }
+        if (expired.length === 0) return;
 
         let newBalance = state.balance;
         let newConsecutiveLosses = state.consecutiveLosses;
         let newCurrentStake = state.currentStake;
-        let pnl = 0;
+        const remainingTrades = { ...state.openTrades };
+        const newEntries: DemoTradeHistoryEntry[] = [];
 
-        if (outcome === 'win') {
-          pnl = trade.stake * trade.profitPercent / 100;
-          newBalance = state.balance + pnl;
-          newConsecutiveLosses = 0;
-          newCurrentStake = state.baseStake;
-        } else if (outcome === 'loss') {
-          pnl = -trade.stake;
-          newBalance = state.balance - trade.stake;
-          newConsecutiveLosses = state.consecutiveLosses + 1;
-          if (newConsecutiveLosses >= 3) {
+        for (const trade of expired) {
+          const isWin =
+            trade.direction === 'buy'
+              ? currentPrice > trade.entryPrice
+              : currentPrice < trade.entryPrice;
+
+          let pnl: number;
+          if (isWin) {
+            pnl = trade.stake * trade.profitPercent / 100;
+            newBalance += trade.stake + pnl;
             newConsecutiveLosses = 0;
             newCurrentStake = state.baseStake;
           } else {
-            newCurrentStake = trade.stake * 2;
+            pnl = -trade.stake;
+            newConsecutiveLosses += 1;
+            if (newConsecutiveLosses >= 3) {
+              newConsecutiveLosses = 0;
+              newCurrentStake = state.baseStake;
+            } else {
+              newCurrentStake = trade.stake * 2;
+            }
           }
+
+          delete remainingTrades[trade.signalId];
+          newEntries.push({
+            signalId: trade.signalId,
+            outcome: isWin ? 'win' : 'loss',
+            pnl,
+            balanceAfter: newBalance,
+            closedAt: nowMs,
+          });
         }
 
-        const entry: DemoTradeHistoryEntry = {
-          signalId,
-          outcome,
-          pnl,
-          balanceAfter: newBalance,
-          closedAt: Date.now(),
-        };
-
-        const remaining = { ...state.openTrades };
-        delete remaining[signalId];
-
-        const newHistory = [entry, ...state.history].slice(0, MAX_HISTORY);
+        const newHistory = [...newEntries.reverse(), ...state.history].slice(0, MAX_HISTORY);
 
         set({
           balance: newBalance,
           consecutiveLosses: newConsecutiveLosses,
           currentStake: newCurrentStake,
-          openTrades: remaining,
+          openTrades: remainingTrades,
           history: newHistory,
         });
       },

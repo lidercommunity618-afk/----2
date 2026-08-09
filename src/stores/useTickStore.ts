@@ -377,6 +377,7 @@ function handleCandle(
   if (isClosed) {
     maybeCompute(set, get);
     maybeEvaluateSignal(set, get, true);
+    useDemoAccountStore.getState().checkExpiries(candle.close, (candle.time + TIMEFRAME_SECONDS[state.activeTimeframe]) * 1000);
     maybeResolveOutcomes(set, get);
   } else {
     maybeEvaluateSignal(set, get, false);
@@ -600,7 +601,6 @@ function maybeResolveOutcomes(
 
   sched.onCandleClosed(state.candles, (resolved, signal) => {
     analytics.updateSignalOutcome(resolved.signalId, resolved.outcome);
-    useDemoAccountStore.getState().settleTrade(resolved.signalId, resolved.outcome === 'pending' ? 'timeout' : resolved.outcome);
     void updateSignalOutcome(resolved.signalId, resolved.outcome);
     const outcomeRecord = eng.recordOutcome(signal, resolved.outcome);
     if (outcomeRecord && calibrationModel) {
