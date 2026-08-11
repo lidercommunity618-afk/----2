@@ -1,11 +1,11 @@
 import type { Symbol, Timeframe, SourceId } from '@/types/domain';
+import { ROUTING_CHAIN } from './providers.config';
 import { FOREX_MARKET_HOURS } from '@/data/market-hours';
 
 export const CRYPTO_SYMBOLS: readonly Symbol[] = [
   {
     id: 'BTCUSDT',
     assetClass: 'crypto',
-    sourceMap: { crypto: ['binance', 'deriv'], forex: [] },
     displaySymbol: 'BTC/USDT',
     baseAsset: 'BTC',
     quoteAsset: 'USDT',
@@ -16,7 +16,6 @@ export const CRYPTO_SYMBOLS: readonly Symbol[] = [
   {
     id: 'ETHUSDT',
     assetClass: 'crypto',
-    sourceMap: { crypto: ['binance', 'deriv'], forex: [] },
     displaySymbol: 'ETH/USDT',
     baseAsset: 'ETH',
     quoteAsset: 'USDT',
@@ -27,7 +26,6 @@ export const CRYPTO_SYMBOLS: readonly Symbol[] = [
   {
     id: 'SOLUSDT',
     assetClass: 'crypto',
-    sourceMap: { crypto: ['binance', 'deriv'], forex: [] },
     displaySymbol: 'SOL/USDT',
     baseAsset: 'SOL',
     quoteAsset: 'USDT',
@@ -38,7 +36,6 @@ export const CRYPTO_SYMBOLS: readonly Symbol[] = [
   {
     id: 'BNBUSDT',
     assetClass: 'crypto',
-    sourceMap: { crypto: ['binance', 'deriv'], forex: [] },
     displaySymbol: 'BNB/USDT',
     baseAsset: 'BNB',
     quoteAsset: 'USDT',
@@ -49,7 +46,6 @@ export const CRYPTO_SYMBOLS: readonly Symbol[] = [
   {
     id: 'XRPUSDT',
     assetClass: 'crypto',
-    sourceMap: { crypto: ['binance', 'deriv'], forex: [] },
     displaySymbol: 'XRP/USDT',
     baseAsset: 'XRP',
     quoteAsset: 'USDT',
@@ -63,7 +59,6 @@ export const FOREX_SYMBOLS: readonly Symbol[] = [
   {
     id: 'EURUSD',
     assetClass: 'forex',
-    sourceMap: { crypto: [], forex: ['deriv', 'yahoo', 'twelvedata', 'finnhub'] },
     displaySymbol: 'EUR/USD',
     baseAsset: 'EUR',
     quoteAsset: 'USD',
@@ -74,7 +69,6 @@ export const FOREX_SYMBOLS: readonly Symbol[] = [
   {
     id: 'GBPUSD',
     assetClass: 'forex',
-    sourceMap: { crypto: [], forex: ['deriv', 'yahoo', 'twelvedata', 'finnhub'] },
     displaySymbol: 'GBP/USD',
     baseAsset: 'GBP',
     quoteAsset: 'USD',
@@ -85,7 +79,6 @@ export const FOREX_SYMBOLS: readonly Symbol[] = [
   {
     id: 'USDJPY',
     assetClass: 'forex',
-    sourceMap: { crypto: [], forex: ['deriv', 'yahoo', 'twelvedata', 'finnhub'] },
     displaySymbol: 'USD/JPY',
     baseAsset: 'USD',
     quoteAsset: 'JPY',
@@ -96,7 +89,6 @@ export const FOREX_SYMBOLS: readonly Symbol[] = [
   {
     id: 'AUDUSD',
     assetClass: 'forex',
-    sourceMap: { crypto: [], forex: ['deriv', 'yahoo', 'twelvedata', 'finnhub'] },
     displaySymbol: 'AUD/USD',
     baseAsset: 'AUD',
     quoteAsset: 'USD',
@@ -107,7 +99,6 @@ export const FOREX_SYMBOLS: readonly Symbol[] = [
   {
     id: 'USDCHF',
     assetClass: 'forex',
-    sourceMap: { crypto: [], forex: ['deriv', 'yahoo', 'twelvedata', 'finnhub'] },
     displaySymbol: 'USD/CHF',
     baseAsset: 'USD',
     quoteAsset: 'CHF',
@@ -118,7 +109,6 @@ export const FOREX_SYMBOLS: readonly Symbol[] = [
   {
     id: 'USDCAD',
     assetClass: 'forex',
-    sourceMap: { crypto: [], forex: ['deriv', 'yahoo', 'twelvedata', 'finnhub'] },
     displaySymbol: 'USD/CAD',
     baseAsset: 'USD',
     quoteAsset: 'CAD',
@@ -129,7 +119,6 @@ export const FOREX_SYMBOLS: readonly Symbol[] = [
   {
     id: 'NZDUSD',
     assetClass: 'forex',
-    sourceMap: { crypto: [], forex: ['deriv', 'yahoo', 'twelvedata', 'finnhub'] },
     displaySymbol: 'NZD/USD',
     baseAsset: 'NZD',
     quoteAsset: 'USD',
@@ -140,7 +129,6 @@ export const FOREX_SYMBOLS: readonly Symbol[] = [
   {
     id: 'EURGBP',
     assetClass: 'forex',
-    sourceMap: { crypto: [], forex: ['deriv', 'yahoo', 'twelvedata', 'finnhub'] },
     displaySymbol: 'EUR/GBP',
     baseAsset: 'EUR',
     quoteAsset: 'GBP',
@@ -151,7 +139,6 @@ export const FOREX_SYMBOLS: readonly Symbol[] = [
   {
     id: 'EURJPY',
     assetClass: 'forex',
-    sourceMap: { crypto: [], forex: ['deriv', 'yahoo', 'twelvedata', 'finnhub'] },
     displaySymbol: 'EUR/JPY',
     baseAsset: 'EUR',
     quoteAsset: 'JPY',
@@ -162,7 +149,6 @@ export const FOREX_SYMBOLS: readonly Symbol[] = [
   {
     id: 'GBPJPY',
     assetClass: 'forex',
-    sourceMap: { crypto: [], forex: ['deriv', 'yahoo', 'twelvedata', 'finnhub'] },
     displaySymbol: 'GBP/JPY',
     baseAsset: 'GBP',
     quoteAsset: 'JPY',
@@ -173,7 +159,6 @@ export const FOREX_SYMBOLS: readonly Symbol[] = [
   {
     id: 'XAUUSD',
     assetClass: 'forex',
-    sourceMap: { crypto: [], forex: ['deriv', 'yahoo', 'twelvedata', 'finnhub'] },
     displaySymbol: 'XAU/USD',
     baseAsset: 'XAU',
     quoteAsset: 'USD',
@@ -184,7 +169,6 @@ export const FOREX_SYMBOLS: readonly Symbol[] = [
   {
     id: 'XAGUSD',
     assetClass: 'forex',
-    sourceMap: { crypto: [], forex: ['deriv', 'yahoo', 'twelvedata', 'finnhub'] },
     displaySymbol: 'XAG/USD',
     baseAsset: 'XAG',
     quoteAsset: 'USD',
@@ -248,6 +232,14 @@ export function isDerivSupported(symbolId: string): boolean {
   if (sym.assetClass === 'forex') return true;
   if (sym.assetClass === 'crypto') return DERIV_CRYPTO_SYMBOLS.has(toDerivCryptoId(symbolId));
   return false;
+}
+
+export function getRoutingChain(symbol: Symbol): SourceId[] {
+  const base = ROUTING_CHAIN[symbol.assetClass] ?? [];
+  return base.filter((id) => {
+    if (id === 'deriv') return isDerivSupported(symbol.id);
+    return true;
+  });
 }
 
 export function mapSymbolForDeriv(symbolId: string): string {

@@ -235,7 +235,6 @@ export interface MarketHoursConfig {
 export interface Symbol {
   id: string;
   assetClass: AssetClass;
-  sourceMap: Record<AssetClass, SourceId[]>;
   displaySymbol: string;
   baseAsset: string;
   quoteAsset: string;
@@ -532,7 +531,6 @@ export const marketHoursConfigSchema = z.object({
 export const symbolSchema = z.object({
   id: z.string(),
   assetClass: assetClassSchema,
-  sourceMap: z.record(assetClassSchema, z.array(sourceIdSchema)),
   displaySymbol: z.string(),
   baseAsset: z.string(),
   quoteAsset: z.string(),

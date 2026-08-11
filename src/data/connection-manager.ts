@@ -3,8 +3,8 @@ import type { DataSource } from './source';
 import { createSource } from './factory';
 import { serverClock } from './server-clock';
 import { captureError } from '@/lib/sentry';
-import { TIMEFRAME_SECONDS } from './symbols';
-import { STALE_TICK_MS, ROUTING_CHAIN } from './providers.config';
+import { TIMEFRAME_SECONDS, getRoutingChain } from './symbols';
+import { STALE_TICK_MS } from './providers.config';
 import { isMarketOpen } from './market-hours';
 
 const BACKOFF_MS = [1000, 2000, 4000];
@@ -69,7 +69,7 @@ export class ConnectionManager {
     this.prevCandleTime = null;
     this.setStatus('connecting');
 
-    const chain = symbol.sourceMap[symbol.assetClass] ?? [];
+    const chain = getRoutingChain(symbol);
     for (const sourceId of chain) {
       if (seq !== this.connectSeq) return { status: 'idle', candles: [], source: sourceId };
       const result = await this.trySource(sourceId, symbol.id, timeframe, seq);
@@ -207,7 +207,7 @@ export class ConnectionManager {
     this.sourceUnsubs = [];
     if (this.source) { this.source.disconnect(); this.source = null; }
     this.lastTickAt = Date.now();
-    const chain = ROUTING_CHAIN[this.activeSymbol.assetClass] ?? [];
+    const chain = getRoutingChain(this.activeSymbol);
     for (const sourceId of chain) {
       if (seq !== this.connectSeq) return;
       const result = await this.trySource(sourceId, this.activeSymbol.id, this.activeTimeframe, seq);

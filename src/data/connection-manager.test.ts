@@ -22,7 +22,6 @@ function makeSource(id: SourceId, connectFn: () => Promise<ConnectResult>): Data
 const cryptoSymbol: Symbol = {
   id: 'BTCUSDT',
   assetClass: 'crypto',
-  sourceMap: { crypto: ['binance', 'deriv'], forex: [] },
   displaySymbol: 'BTC/USDT',
   baseAsset: 'BTC',
   quoteAsset: 'USDT',
@@ -34,7 +33,6 @@ const cryptoSymbol: Symbol = {
 const forexSymbol: Symbol = {
   id: 'EURUSD',
   assetClass: 'forex',
-  sourceMap: { crypto: [], forex: ['deriv', 'twelvedata'] },
   displaySymbol: 'EUR/USD',
   baseAsset: 'EUR',
   quoteAsset: 'USD',
@@ -80,9 +78,16 @@ describe('ConnectionManager failover', () => {
   it('returns failed status when all sources fail', async () => {
     const fail1 = makeSource('deriv', () => Promise.reject(new Error('down')));
     const fail2 = makeSource('twelvedata', () => Promise.reject(new Error('down')));
+    const fail3 = makeSource('yahoo', () => Promise.reject(new Error('down')));
+    const fail4 = makeSource('finnhub', () => Promise.reject(new Error('down')));
 
     vi.doMock('@/data/factory', () => ({
-      createSource: (id: SourceId) => id === 'deriv' ? fail1 : fail2,
+      createSource: (id: SourceId) => {
+        if (id === 'deriv') return fail1;
+        if (id === 'twelvedata') return fail2;
+        if (id === 'yahoo') return fail3;
+        return fail4;
+      },
     }));
 
     const { ConnectionManager } = await import('@/data/connection-manager');
@@ -91,7 +96,7 @@ describe('ConnectionManager failover', () => {
     const result = await mgr.connectAndGetHistory(forexSymbol, '15m');
     expect(result.status).toBe('failed');
     expect(result.candles).toEqual([]);
-  }, 15000);
+  }, 30000);
 
   it('exposes activeSource via public getter', async () => {
     const okResult: ConnectResult = {
